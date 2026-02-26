@@ -1,10 +1,10 @@
 # Alon's Chat Bot
 
-Full-stack playground with a Spring Boot backend and a Vite/React frontend. The bot now streams real answers through OpenAI so the conversation actually feels alive.
+Full-stack playground with a Spring Boot backend and a Vite/React frontend. The bot now streams real answers through OpenAI and keeps multiple chat sessions with a modern desktop-style UI.
 
 ## Project structure
-- `backend/` – Spring Boot 3.5 REST API (`/api/messages`) with OpenAI integration.
-- `frontend/` – Vite + React single page chat UI.
+- `backend/` – Spring Boot 3.5 REST API with OpenAI + chat session management.
+- `frontend/` – Vite + React SPA with a pinned header and sidebar for chat history.
 
 ## Prerequisites
 - Java 21+
@@ -30,7 +30,10 @@ npm run dev                 # default: http://localhost:5173
 For production builds run `npm run build` and serve the `dist/` folder.
 
 ## API quick reference
-- `GET /api/messages` – returns the current in-memory history.
-- `POST /api/messages` `{ "message": "..." }` – stores your prompt, calls OpenAI, and responds with `{ reply, suggestions }`.
+- `GET /api/chats` → list chat sessions `{ id, title, createdAt, updatedAt }`
+- `POST /api/chats` `{ "title": "optional" }` → create a new chat session
+- `GET /api/chats/{chatId}/messages` → history for a session
+- `POST /api/chats/{chatId}/messages` `{ "message": "..." }` → send a message and get `{ reply, suggestions }`
+- Legacy fallback (`/api/messages`) still works and simply targets the first chat.
 
-The backend keeps the last 50 turns in memory. Swap in a database when you need persistence.
+The backend keeps the last ~80 turns per chat in memory. Swap in a database when you need persistence.
