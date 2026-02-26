@@ -59,18 +59,18 @@ body {
 
 .chat-shell {
   position: relative;
-  width: min(1400px, calc(100vw - clamp(32px, 4vw, 96px)));
-  min-height: clamp(640px, 80vh, 880px);
-  background: rgba(8, 11, 20, 0.85);
+  width: clamp(960px, 88vw, 1700px);
+  height: min(92vh, 980px);
+  background: linear-gradient(135deg, rgba(9, 12, 20, 0.92), rgba(7, 10, 18, 0.88));
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: clamp(24px, 3vw, 36px);
-  padding: clamp(24px, 3vw, 40px);
+  border-radius: clamp(24px, 3vw, 42px);
+  padding: clamp(24px, 3vw, 44px);
   z-index: 1;
-  backdrop-filter: blur(32px);
+  backdrop-filter: blur(36px);
   display: flex;
   flex-direction: column;
   gap: clamp(16px, 2vw, 28px);
-  box-shadow: 0 50px 160px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 60px 120px rgba(2, 4, 10, 0.65);
 }
 
 header {
@@ -105,7 +105,7 @@ h1 {
 main {
   flex: 1;
   min-height: 0;
-  max-height: calc(100% - 180px);
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -248,8 +248,8 @@ main::-webkit-scrollbar-thumb {
 @media (max-width: 960px) {
   .chat-shell {
     width: 100%;
-    min-height: calc(100vh - 48px);
-    border-radius: 0;
+    height: calc(100vh - 32px);
+    border-radius: 24px;
     padding: 20px;
   }
 
