@@ -1,42 +1,36 @@
 # Alon's Chat Bot
 
-ניסוי הכולל בקאנד Spring Boot ופרונט React לבוט צ'אט יומיומי.
+Full-stack playground with a Spring Boot backend and a Vite/React frontend. The bot now streams real answers through OpenAI so the conversation actually feels alive.
 
-## מבנה הפרויקט
+## Project structure
+- `backend/` – Spring Boot 3.5 REST API (`/api/messages`) with OpenAI integration.
+- `frontend/` – Vite + React single page chat UI.
 
-- `backend/` – Spring Boot 3.5 עם REST API בנתיב `/api/messages`.
-- `frontend/` – Vite + React עם ממשק צ'אט חד עמודי.
-
-## הרצה מקומית
-
-### דרישות
-- Java 21
+## Prerequisites
+- Java 21+
 - Node.js 18+
+- An OpenAI API key (saved as `OPENAI_API_KEY` in your shell or `.env`)
 
-### Backend
+## Backend
 ```bash
 cd backend
+export OPENAI_API_KEY=sk-...   # or set in your shell profile
 ./mvnw spring-boot:run
 ```
-השרת יעלה על `http://localhost:8080`.
+Server boots on `http://localhost:8080`.
 
-### Frontend
+## Frontend
 ```bash
 cd frontend
-cp .env.example .env   # התאמת כתובת backend אם צריך
-npm install            # פעם ראשונה בלבד
-npm run dev            # יעלה בברירת מחדל ל- http://localhost:5173
+cp .env.example .env        # adjust VITE_API_BASE if backend runs elsewhere
+npm install
+npm run dev                 # default: http://localhost:5173
 ```
 
-במצב פרודקשן אפשר להריץ `npm run build` ולפרוס את תקיית `dist` מאחורי CDN פשוט.
+For production builds run `npm run build` and serve the `dist/` folder.
 
-## API קצר
-- `GET /api/messages` – מחזיר היסטוריית הודעות אחרונה.
-- `POST /api/messages` עם `{ "message": "..." }` – שומר הודעת משתמש, מחזיר תשובת בוט והצעות המשך.
+## API quick reference
+- `GET /api/messages` – returns the current in-memory history.
+- `POST /api/messages` `{ "message": "..." }` – stores your prompt, calls OpenAI, and responds with `{ reply, suggestions }`.
 
-הבקאנד מחזיק היסטוריה בזיכרון (עד 50 הודעות). זה מספיק להדגמה ואפשר בעתיד להחליף למסד נתונים.
-
-## המשך עבודה
-- חיבור למנוע AI אמיתי במקום תשובות כללים.
-- התממשקות לאוטנטיקציה של גיטהאב לצורך פרסונליזציה.
-- הוספת בדיקות יחידה גם לפרונט וגם לבקאנד.
+The backend keeps the last 50 turns in memory. Swap in a database when you need persistence.

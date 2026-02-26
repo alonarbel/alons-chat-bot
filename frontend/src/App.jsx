@@ -1,33 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
 
 function ChatBubble({ sender, text, timestamp }) {
   const isUser = sender === "user";
-  const formattedTime = new Date(timestamp).toLocaleTimeString("he-IL", {
+  const time = new Date(timestamp).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
+
   return (
     <div className={`bubble ${isUser ? "bubble-user" : "bubble-bot"}`}>
-      <div className="bubble-header">
-        <span>{isUser ? "אתה" : "אלון'ס בוט"}</span>
-        <small>{formattedTime}</small>
+      <div className="bubble-meta">
+        <span>{isUser ? "You" : "Alon's Bot"}</span>
+        <small>{time}</small>
       </div>
       <p>{text}</p>
     </div>
   );
 }
 
-function SuggestionChips({ suggestions, onSelect }) {
+function SuggestionChips({ suggestions, onSelect, disabled }) {
   const memoSuggestions = useMemo(() => suggestions ?? [], [suggestions]);
   if (!memoSuggestions.length) return null;
   return (
-    <div className="chips">
-      {memoSuggestions.map((s, index) => (
-        <button key={`${s}-${index}`} onClick={() => onSelect(s)}>
-          {s}
+    <div className="chip-row">
+      {memoSuggestions.map((item, index) => (
+        <button
+          key={`${item}-${index}`}
+          onClick={() => onSelect(item)}
+          disabled={disabled}
+          className="chip"
+        >
+          {item}
         </button>
       ))}
     </div>
@@ -40,16 +46,28 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState(null);
+  const endOfChatRef = useRef(null);
+
+  const scrollToBottom = () => {
+    endOfChatRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     fetch(`${API_BASE}/api/messages`)
       .then((res) => res.json())
-      .then((data) => setMessages(data))
+      .then((history) => {
+        setMessages(history);
+        scrollToBottom();
+      })
       .catch(() => setMessages([]));
   }, []);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
+    if (!text.trim() || loading) return;
     setLoading(true);
     setError(null);
     setInput("");
@@ -60,15 +78,18 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
+
       if (!response.ok) {
-        throw new Error("שגיאה בשליחה לשרת");
+        throw new Error("The server refused to answer. Try again.");
       }
+
       const data = await response.json();
-      const refreshed = await fetch(`${API_BASE}/api/messages`).then((res) =>
+      setSuggestions(data.suggestions ?? []);
+
+      const updatedHistory = await fetch(`${API_BASE}/api/messages`).then((res) =>
         res.json()
       );
-      setMessages(refreshed);
-      setSuggestions(data.suggestions ?? []);
+      setMessages(updatedHistory);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -76,45 +97,58 @@ function App() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
     sendMessage(input);
   };
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>Alon's Chat Bot</h1>
-        <p>בוט יומיומי שנותן בראש 🙂</p>
-      </header>
-
-      <main>
-        {messages.length === 0 && (
-          <div className="empty-state">
-            <p>עדיין אין שיחה. תגיד שלום ונתחיל.</p>
+    <div className="page">
+      <div className="hero-glow" />
+      <div className="chat-shell">
+        <header>
+          <div>
+            <p className="badge">Experimental</p>
+            <h1>Alon's Chat Bot</h1>
+            <p className="subtitle">
+              Day-to-day assistant powered by OpenAI — grounded, personal, and fast.
+            </p>
           </div>
-        )}
-        {messages.map((msg) => (
-          <ChatBubble key={`${msg.timestamp}-${msg.sender}`} {...msg} />
-        ))}
-      </main>
+        </header>
 
-      {error && <div className="error">{error}</div>}
+        <main>
+          {messages.length === 0 && (
+            <div className="empty-state">
+              <p>Say hi and I'll keep the conversation rolling.</p>
+            </div>
+          )}
+          {messages.map((msg) => (
+            <ChatBubble key={`${msg.timestamp}-${msg.sender}`} {...msg} />
+          ))}
+          <span ref={endOfChatRef} />
+        </main>
 
-      <SuggestionChips suggestions={suggestions} onSelect={sendMessage} />
+        {error && <div className="error-banner">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="composer">
-        <input
-          type="text"
-          placeholder="מה תרצה לשאול היום?"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+        <SuggestionChips
+          suggestions={suggestions}
+          onSelect={sendMessage}
           disabled={loading}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "שולח..." : "שלח"}
-        </button>
-      </form>
+
+        <form onSubmit={handleSubmit} className="composer">
+          <input
+            type="text"
+            placeholder="Ask me anything…"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? "Thinking…" : "Send"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

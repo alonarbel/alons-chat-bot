@@ -15,6 +15,11 @@ public class ChatService {
 
     private static final int HISTORY_LIMIT = 50;
     private final Deque<ChatMessage> history = new ArrayDeque<>();
+    private final OpenAiClient openAiClient;
+
+    public ChatService(OpenAiClient openAiClient) {
+        this.openAiClient = openAiClient;
+    }
 
     public List<ChatMessage> getHistory() {
         return new ArrayList<>(history);
@@ -25,7 +30,8 @@ public class ChatService {
         var userEntry = new ChatMessage("user", trimmed, Instant.now());
         addToHistory(userEntry);
 
-        String reply = buildReply(trimmed);
+        String reply = openAiClient.generateReply(getHistory(), trimmed)
+                .orElseGet(() -> fallbackReply(trimmed));
         var botEntry = new ChatMessage("bot", reply, Instant.now());
         addToHistory(botEntry);
 
@@ -39,39 +45,39 @@ public class ChatService {
         }
     }
 
-    private String buildReply(String message) {
+    private String fallbackReply(String message) {
         if (message.isBlank()) {
-            return "תכתוב לי משהו ואני כבר אתן רעיון";
+            return "Say anything and I'll riff with you.";
         }
 
         String lower = message.toLowerCase();
-        if (lower.contains("כרטיס")) {
-            return "כדאי לבדוק אם יש הנחה ללקוחות קבועים לפני שאתה סוגר";
+        if (lower.contains("ticket")) {
+            return "Remember to jump in right when sales open – every second counts.";
         }
-        if (lower.contains("טיסה") || lower.contains("חופשה")) {
-            return "אוכל להשוות לך מחירים בין כמה אתרים ולהזכיר מתנות דיוטי";
+        if (lower.contains("flight") || lower.contains("trip") || lower.contains("vacation")) {
+            return "I can scan a few sites, compare routes, and remind you about duty-free snacks.";
         }
-        if (lower.contains("ארוחה") || lower.contains("לאכול")) {
-            return "לך על משהו איטלקי היום – פסטה שמנה עם פסטו ולימון";
+        if (lower.contains("dinner") || lower.contains("eat")) {
+            return "Let's keep it easy: roasted veggies, tahini drizzle, and a cold drink.";
         }
-        if (lower.contains("שלום") || lower.contains("היי")) {
-            return "אהלן! איך אפשר לעזור לך היום?";
+        if (lower.contains("hi") || lower.contains("hello") || lower.contains("hey")) {
+            return "Hey! What's up?";
         }
-        return "הבנתי, בוא נפרק את זה לצעדים קטנים ואני אעזור בכל אחד";
+        return "Got it. Let's break it into simple steps and I'll guide you through.";
     }
 
     private List<String> buildSuggestions(String message) {
         List<String> suggestions = new ArrayList<>();
-        suggestions.add("תן לי רעיון לערב" );
-        suggestions.add("תזכיר לי משהו חשוב" );
-        suggestions.add("בוא נכין רשימת משימות" );
+        suggestions.add("Give me an evening idea");
+        suggestions.add("Set a reminder");
+        suggestions.add("Plan a to-do list");
 
         String lower = message.toLowerCase();
-        if (lower.contains("טיסה")) {
-            suggestions.set(0, "מצא לי טיסות זולות" );
+        if (lower.contains("flight")) {
+            suggestions.set(0, "Find me cheap flights");
         }
-        if (lower.contains("ארוחה")) {
-            suggestions.set(0, "מה לאכול הערב?" );
+        if (lower.contains("dinner")) {
+            suggestions.set(0, "What should I eat tonight?" );
         }
         return suggestions;
     }
