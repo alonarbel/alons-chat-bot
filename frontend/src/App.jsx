@@ -155,88 +155,93 @@ function App() {
     <div className="page">
       <div className="hero-glow" />
       <div className="chat-shell">
-        <aside className="sidebar">
-          <div className="sidebar__brand">
-            <h2>Alon's Bot</h2>
-            <p>Always-on daily assistant</p>
+        <header className="app-header">
+          <div>
+            <p className="badge">Pinned</p>
+            <h1>Alon's Chat Bot</h1>
+            <p className="subtitle">
+              Ask anything – logistics, travel, reminders, or spur-of-the-moment ideas.
+            </p>
           </div>
-          <button className="sidebar__action" onClick={handleNewChat}>
-            + New chat
-          </button>
-          <div className="sidebar__section">
-            <p className="sidebar__label">History</p>
-            <div className="sidebar__list">
-              {chats.map((chat) => (
-                <button
-                  key={chat.id}
-                  className={`sidebar__chat ${chat.id === activeChatId ? "is-active" : ""}`}
-                  onClick={() => setActiveChatId(chat.id)}
-                >
-                  <span>{chat.title}</span>
-                  <small>
-                    {new Date(chat.updatedAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </small>
-                </button>
-              ))}
-              {!chats.length && <p className="sidebar__empty">No chats yet</p>}
-            </div>
+          <div className="header-actions">
+            <button className="sidebar__action" onClick={handleNewChat}>
+              + New chat
+            </button>
           </div>
-          <div className="sidebar__section quick-links">
-            <p className="sidebar__label">Shortcuts</p>
-            <button className="sidebar__ghost">Reminders</button>
-            <button className="sidebar__ghost">Trips</button>
-            <button className="sidebar__ghost">Household</button>
-          </div>
-        </aside>
+        </header>
 
-        <section className="conversation">
-          <div className="conversation__header">
-            <div>
-              <p className="badge">Pinned</p>
-              <h1>{activeChatTitle || "Pick a chat"}</h1>
-              <p className="subtitle">
-                Ask anything – logistics, travel, reminders, or spur-of-the-moment ideas.
-              </p>
-            </div>
-          </div>
-
-          <div className="conversation__body">
-            {loadingHistory && <p className="loading">Loading chat…</p>}
-            {!loadingHistory && messages.length === 0 && (
-              <div className="empty-state">
-                <p>Say hi and I'll keep the conversation rolling.</p>
+        <div className="main-area">
+          <aside className="sidebar">
+            <div className="sidebar__section">
+              <p className="sidebar__label">History</p>
+              <div className="sidebar__list">
+                {chats.map((chat) => (
+                  <button
+                    key={chat.id}
+                    className={`sidebar__chat ${chat.id === activeChatId ? "is-active" : ""}`}
+                    onClick={() => setActiveChatId(chat.id)}
+                  >
+                    <span>{chat.title}</span>
+                    <small>
+                      {new Date(chat.updatedAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </small>
+                  </button>
+                ))}
+                {!chats.length && <p className="sidebar__empty">No chats yet</p>}
               </div>
-            )}
-            {messages.map((msg) => (
-              <ChatBubble key={`${msg.timestamp}-${msg.sender}-${msg.text}`} {...msg} />
-            ))}
-            <span ref={endOfChatRef} />
-          </div>
+            </div>
+            <div className="sidebar__section quick-links">
+              <p className="sidebar__label">Shortcuts</p>
+              <button className="sidebar__ghost">Reminders</button>
+              <button className="sidebar__ghost">Trips</button>
+              <button className="sidebar__ghost">Household</button>
+            </div>
+          </aside>
 
-          {error && <div className="error-banner">{error}</div>}
+          <section className="conversation">
+            <div className="conversation__title">
+              <h2>{activeChatTitle || "Pick a chat"}</h2>
+              <p>Single focused conversation. Scroll inside the chat area.</p>
+            </div>
 
-          <SuggestionChips
-            suggestions={suggestions}
-            onSelect={sendMessage}
-            disabled={loading || !activeChatId}
-          />
+            <div className="conversation__body">
+              {loadingHistory && <p className="loading">Loading chat…</p>}
+              {!loadingHistory && messages.length === 0 && (
+                <div className="empty-state">
+                  <p>Say hi and I'll keep the conversation rolling.</p>
+                </div>
+              )}
+              {messages.map((msg) => (
+                <ChatBubble key={`${msg.timestamp}-${msg.sender}-${msg.text}`} {...msg} />
+              ))}
+              <span ref={endOfChatRef} />
+            </div>
 
-          <form onSubmit={handleSubmit} className="composer">
-            <input
-              type="text"
-              placeholder="Ask me anything…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+            {error && <div className="error-banner">{error}</div>}
+
+            <SuggestionChips
+              suggestions={suggestions}
+              onSelect={sendMessage}
               disabled={loading || !activeChatId}
             />
-            <button type="submit" disabled={loading || !activeChatId}>
-              {loading ? "Thinking…" : "Send"}
-            </button>
-          </form>
-        </section>
+
+            <form onSubmit={handleSubmit} className="composer">
+              <input
+                type="text"
+                placeholder="Ask me anything…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={loading || !activeChatId}
+              />
+              <button type="submit" disabled={loading || !activeChatId}>
+                {loading ? "Thinking…" : "Send"}
+              </button>
+            </form>
+          </section>
+        </div>
       </div>
     </div>
   );

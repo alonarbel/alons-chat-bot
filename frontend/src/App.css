@@ -60,17 +60,38 @@ body {
 .chat-shell {
   position: relative;
   width: clamp(1100px, 94vw, 1800px);
-  height: min(92vh, 980px);
+  height: min(94vh, 1000px);
   background: linear-gradient(135deg, rgba(9, 12, 20, 0.92), rgba(7, 10, 18, 0.88));
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: clamp(24px, 3vw, 42px);
   padding: clamp(18px, 2vw, 32px);
   z-index: 1;
   backdrop-filter: blur(36px);
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: clamp(18px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2vw, 28px);
   box-shadow: 0 60px 120px rgba(2, 4, 10, 0.65);
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.main-area {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: clamp(18px, 2vw, 32px);
 }
 
 .sidebar {
@@ -81,26 +102,7 @@ body {
   border-radius: 24px;
   padding: 20px;
   gap: 18px;
-}
-
-.sidebar__brand h2 {
-  margin: 0;
-}
-
-.sidebar__brand p {
-  margin: 4px 0 0;
-  color: rgba(248, 249, 255, 0.7);
-  font-size: 0.9rem;
-}
-
-.sidebar__action {
-  border: none;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #6d7dff, #944bff);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
+  overflow: hidden;
 }
 
 .sidebar__section {
@@ -121,9 +123,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 260px;
   overflow-y: auto;
   padding-right: 4px;
+  flex: 1;
 }
 
 .sidebar__list::-webkit-scrollbar {
@@ -152,17 +154,14 @@ body {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.sidebar__chat span {
-  font-weight: 500;
-}
-
-.sidebar__chat small {
-  color: rgba(248, 249, 255, 0.6);
-}
-
-.sidebar__empty {
-  color: rgba(248, 249, 255, 0.6);
-  font-size: 0.9rem;
+.sidebar__action {
+  border: none;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6d7dff, #944bff);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .sidebar__ghost {
@@ -174,6 +173,11 @@ body {
   cursor: pointer;
 }
 
+.sidebar__empty {
+  color: rgba(248, 249, 255, 0.6);
+  font-size: 0.9rem;
+}
+
 .conversation {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -182,38 +186,16 @@ body {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: 0;
 }
 
-.conversation__header {
-  position: sticky;
-  top: 0;
-  background: rgba(9, 12, 20, 0.85);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 18px;
-  z-index: 2;
+.conversation__title {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 12px;
 }
 
-.badge {
-  display: inline-flex;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(92, 111, 255, 0.2);
-  border: 1px solid rgba(92, 111, 255, 0.4);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-h1 {
-  margin: 0 0 8px;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-}
-
-.subtitle {
-  margin: 0;
-  color: rgba(248, 249, 255, 0.7);
+.conversation__title h2 {
+  margin: 0 0 6px;
 }
 
 .conversation__body {
@@ -347,6 +329,28 @@ h1 {
   cursor: not-allowed;
 }
 
+.badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(92, 111, 255, 0.2);
+  border: 1px solid rgba(92, 111, 255, 0.4);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(248, 249, 255, 0.7);
+}
+
 @keyframes floatIn {
   from {
     opacity: 0;
@@ -359,23 +363,18 @@ h1 {
 }
 
 @media (max-width: 1200px) {
-  .chat-shell {
+  .main-area {
     grid-template-columns: 1fr;
-    height: auto;
   }
 
   .sidebar {
     flex-direction: row;
+    border-radius: 18px;
     overflow-x: auto;
-    gap: 16px;
   }
 
-  .sidebar__section {
-    min-width: 200px;
-  }
-
-  .conversation__header {
-    position: relative;
+  .chat-shell {
+    height: auto;
   }
 }
 
@@ -385,6 +384,10 @@ h1 {
   }
 
   .sidebar {
+    flex-direction: column;
+  }
+
+  .app-header {
     flex-direction: column;
   }
 }
