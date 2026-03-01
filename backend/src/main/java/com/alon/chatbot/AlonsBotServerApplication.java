@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AlonsChatBotBackendApplication {
+public class AlonsBotServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AlonsChatBotBackendApplication.class, args);
+		SpringApplication.run(AlonsBotServerApplication.class, args);
 	}
 
 }
